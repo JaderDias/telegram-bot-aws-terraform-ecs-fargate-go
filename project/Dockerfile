@@ -1,13 +1,10 @@
 FROM golang:1.18.3-bullseye AS golang
 
-WORKDIR /demo
+WORKDIR /
 
-COPY go.mod go.sum ./
+COPY go.mod go.sum sh.csv ./
 RUN go mod download
 COPY . .
 
-RUN go build -o /tmp/demo-exe main.go
-
-FROM gcr.io/distroless/base:latest
-COPY --from=golang /tmp/demo-exe /demo-runner
-ENTRYPOINT [ "/demo-runner"]CMD []
+RUN go build -o /demo-runner main.go
+ENTRYPOINT [ "/demo-runner" ]CMD []

@@ -1,8 +1,13 @@
+*.csv
+
 # terraform
 .terraform
 *.hcl
 *.tfstate
 *.backup
+
+# python
+*.pyc
 
 # Binaries for programs and plugins
 *.exe

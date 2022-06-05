@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"log"
 
 	"os"
@@ -27,8 +28,23 @@ func main() {
 	for update := range updates {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+
+			// open file sh.csv and read it
+			file, err := os.Open("sh.csv")
+			if err != nil {
+				log.Panic(err)
+			}
+
+			defer file.Close()
+
+			// read file line per line
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				msg.Text += scanner.Text()
+				break
+			}
+
 			msg.ReplyToMessageID = update.Message.MessageID
 
 			bot.Send(msg)

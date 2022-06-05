@@ -11,4 +11,4 @@ in Amazon Web Services using Elastic Container Service and Fargate
 ## Deployment
 
 1. `terraform init`
-2. `terraform apply`
+2. `terraform apply --var "telegram_bot_token=YOUR_TOKEN_HERE"`
