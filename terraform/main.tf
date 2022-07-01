@@ -18,13 +18,6 @@ variable "tag" {
   default     = "latest"
 }
 
-variable "envvars" {
-  type        = map(string)
-  description = "variables to set in the environment of the container"
-  default = {
-  }
-}
-
 resource "random_pet" "this" {
   length = 2
 }

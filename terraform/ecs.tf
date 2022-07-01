@@ -13,20 +13,47 @@ resource "aws_ecs_task_definition" "service" {
   cpu                      = 256
   memory                   = 2048
   requires_compatibilities = ["FARGATE"]
-  container_definitions = templatefile("./app.json.tpl", {
-    aws_ecr_repository = aws_ecr_repository.repo.repository_url
-    tag                = "latest"
-    app_port           = 80
-    region             = "${var.region}"
-    prefix             = "${var.prefix}"
-    envvars            = var.envvars
-    port               = var.port
-    telegram_bot_token = var.telegram_bot_token
-  })
+  container_definitions = jsonencode([
+    {
+      name      = "${var.prefix}-app"
+      command   = [var.telegram_bot_token]
+      image     = "${aws_ecr_repository.repo.repository_url}:latest"
+      essential = true
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-region        = "${var.region}"
+          awslogs-stream-prefix = "${var.prefix}-service"
+          awslogs-group         = "${var.prefix}-log-group"
+        }
+      }
+      portMappings = [
+        {
+          containerPort = 3000
+          hostPort      = 3000
+          protocol      = "tcp"
+        }
+      ]
+      cpu = 1
+      ulimits = [
+        {
+          name      = "nofile"
+          softLimit = 65536
+          hardLimit = 65536
+        }
+      ]
+      mountPoints = []
+      memory      = 2048
+      volumesFrom = []
+    }
+  ])
   tags = {
     Environment = "staging"
     Application = "${var.prefix}-app"
   }
+  depends_on = [
+    aws_ecr_repository.repo,
+  ]
 }
 
 resource "aws_ecs_service" "staging" {
@@ -40,6 +67,12 @@ resource "aws_ecs_service" "staging" {
     security_groups  = [aws_security_group.ecs_tasks.id]
     subnets          = data.aws_subnets.default.ids
     assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.my_api.arn
+    container_name   = "${var.prefix}-app"
+    container_port   = 3000
   }
 
   depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role]

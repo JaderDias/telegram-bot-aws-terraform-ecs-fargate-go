@@ -34,6 +34,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	go ListenAndServe()
 
 	bot.Debug = true
 
