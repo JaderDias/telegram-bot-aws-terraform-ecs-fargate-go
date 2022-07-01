@@ -23,7 +23,7 @@ resource "aws_alb" "my_api" {
 
 resource "aws_alb_listener" "my_api_http" {
   load_balancer_arn = aws_alb.my_api.arn
-  port              = 3000
+  port              = 80
   protocol          = "HTTP"
   default_action {
     type             = "forward"

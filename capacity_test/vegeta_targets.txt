@@ -1,0 +1,1 @@
+GET http://my-api-lb-NUMBER.REGION.elb.amazonaws.com
